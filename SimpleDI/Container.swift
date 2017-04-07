@@ -10,47 +10,54 @@ import Foundation
 
 ///A simple container class that supports the following usecases
 ///
-/// registering values:
-///   let c = Container()
-///   c.registerValue(MyValue())
-///   let value: MyValue = c.resolve()
-///
-/// registering functions:
-///   let c = Container()
-///   c.register({ MyValue() })
-///   let value: MyValue = c.resolve()
-///
-/// registering services over protocol:
-///   let c = Container()
-///   c.register({ MyValue() as MyProtocol })
-///   let value: MyProtocol = c.resolve()
-///
-/// dependency injection:
-///   // assumes a class MyValue with init(_ arg: MyDependency1, other: MyDependency2))
+///creating a container:
 ///
 ///   let c = Container()
-///   c.register({ MyValue(c.resolve(), other: c.resolve()) })
-///   c.register({ MyDependency1() })
-///   c.register({ MyDependency2() })
-///   let value: MyValue = c.resolve()
-class Container : CustomDebugStringConvertible {
+///
+///registering/resolving simple types:
+///
+///   c.registerInstance(42)  //registers an Int
+///   c.register({ 42 }) //registers an Int 'lazyly'
+///   42 == c.resolve() //returns true
+///
+///registering/resolving a service using protocol:
+///
+///   c.register({ MyClass() as MyProtocol }) //registers concrete class as protocol
+///   c.resolve()! as MyProtocol //resolves instance of MyClass
+///   c.resolve()! is MyClass //evaluates to true
+///
+///dependency injection:
+///
+///   c.register({ MyClass(c.resolve(), arg2: c.resolve(), arg3: c.resolve()) }) //dependency injection
+///   let cl = c.resolve()! as MyClass //resolves the whole dependency tree
+///
+///registering a non-singleton class:
+///
+///   c.register({ MyClass() }, singleton: false) //registers as transient class
+///   let p = c.resolve()! as MyClass
+///   let p2 = c.resolve()! as MyClass
+///   p !== p2 //returns true
+///
+public class Container : CustomDebugStringConvertible {
     private var registrations = [ContainerType:ContainerValue]()
     
-    func register<T>(_ fn: @escaping ()->T) {
+    public init () {}
+    
+    public func register<T>(_ fn: @escaping ()->T) {
         self.register(fn, singleton: true)
     }
     
-    func register<T>(_ fn: @escaping ()->T, singleton: Bool) {
+    public func register<T>(_ fn: @escaping ()->T, singleton: Bool) {
         let type = ContainerType(T.self)
         registrations[type] = LazyContainerValue(fn, singleton: singleton)
     }
     
-    func registerInstance<T>(_ value: T) {
+    public func registerInstance<T>(_ value: T) {
         let type = ContainerType(T.self)
         registrations[type] = FixedContainerValue(value)
     }
     
-    func resolve<T>() -> T? {
+    public func resolve<T>() -> T? {
         let type = ContainerType(T.self)
         if let registration = registrations[type] {
             return registration.getInstance() as? T

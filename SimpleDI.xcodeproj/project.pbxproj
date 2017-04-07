@@ -29,6 +29,7 @@
 		ED7E2D311E981E790036C155 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ED7E2D3B1E981EE50036C155 /* Container.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Container.swift; sourceTree = "<group>"; };
 		ED7E2D3D1E981EF30036C155 /* ContainerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerTests.swift; sourceTree = "<group>"; };
+		ED7E2D421E9837DF0036C155 /* SimpleDI.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SimpleDI.playground; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +54,7 @@
 		ED7E2D171E981E790036C155 = {
 			isa = PBXGroup;
 			children = (
+				ED7E2D421E9837DF0036C155 /* SimpleDI.playground */,
 				ED7E2D231E981E790036C155 /* SimpleDI */,
 				ED7E2D2E1E981E790036C155 /* SimpleDITests */,
 				ED7E2D221E981E790036C155 /* Products */,
