@@ -1,7 +1,4 @@
 //
-//  Container.swift
-//  TinyDI
-//
 //  Created by Olaf Conijn on 07/04/2017.
 //  Copyright © 2017 Olaf Conijn. All rights reserved.
 //
