@@ -38,25 +38,25 @@ import Foundation
 ///   let p2 = c.resolve()! as MyClass
 ///   p !== p2 //returns true
 ///
-public class Container : CustomDebugStringConvertible {
-    private var registrations = [ContainerType:ContainerValue]()
-    
+public class Container: CustomDebugStringConvertible {
+    private var registrations = [ContainerType: ContainerValue]()
+
     public init () {}
-    
-    public func register<T>(_ fn: @escaping ()->T) {
-        self.register(fn, singleton: true)
+
+    public func register<T>(_ fnInit: @escaping () -> T) {
+        self.register(fnInit, singleton: true)
     }
-    
-    public func register<T>(_ fn: @escaping ()->T, singleton: Bool) {
+
+    public func register<T>(_ fnInit: @escaping () -> T, singleton: Bool) {
         let type = ContainerType(T.self)
-        registrations[type] = LazyContainerValue(fn, singleton: singleton)
+        registrations[type] = LazyContainerValue(fnInit, singleton: singleton)
     }
-    
+
     public func registerInstance<T>(_ value: T) {
         let type = ContainerType(T.self)
         registrations[type] = FixedContainerValue(value)
     }
-    
+
     public func resolve<T>() -> T? {
         let type = ContainerType(T.self)
         if let registration = registrations[type] {
@@ -65,68 +65,68 @@ public class Container : CustomDebugStringConvertible {
             return nil
         }
     }
-    
+
     public var debugDescription: String {
         return registrations.keys.map({$0.debugDescription}).joined(separator: "\n")
     }
-    
+
     private class ContainerType: CustomDebugStringConvertible, Hashable, Equatable {
-        var type : String!
-        
+        var type: String!
+
         init(_ type: Any.Type) {
             self.type = "\(type)"
         }
-        
+
         public var hashValue: Int {
             return type.hashValue
         }
-        
-        public static func ==(lhs: ContainerType, rhs: ContainerType) -> Bool {
+
+        public static func == (lhs: ContainerType, rhs: ContainerType) -> Bool {
             return rhs.type == lhs.type
         }
-        
+
         public var debugDescription: String {
             return "registered type: \(type)"
         }
     }
-    
-    private class FixedContainerValue : ContainerValue {
+
+    private class FixedContainerValue: ContainerValue {
         let val : Any
-        
+
         init(_ val: Any) {
             self.val = val
         }
-        
+
         override func getInstance() -> Any {
             return val
         }
     }
-    
-    private class LazyContainerValue : ContainerValue {
-        let fn: () -> Any
+
+    private class LazyContainerValue: ContainerValue {
+        let fnInit: () -> Any
         let singleton: Bool
         var cachedInstance : Any?
-        
-        init(_ fn: @escaping () -> Any, singleton: Bool) {
-            self.fn = fn
+
+        init(_ fnInit: @escaping () -> Any, singleton: Bool) {
+            self.fnInit = fnInit
             self.singleton = singleton
         }
-        
+
         override func getInstance() -> Any {
             if let previouslyCached = cachedInstance {
                 return previouslyCached
             }
-            
-            let instance = fn()
-            
-            if (singleton) {
+
+            let instance = fnInit()
+
+            if singleton {
                 cachedInstance = instance
             }
-            
+
             return instance
         }
     }
-    
+
     private class ContainerValue {
         func getInstance() -> Any {
             return ""
