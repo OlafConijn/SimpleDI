@@ -39,10 +39,10 @@ class ContainerTests: XCTestCase {
         let c  = Container()
         let s = SomeObject()
 
-        c.register({ return 42 })
-        c.register({ return "hello" })
-        c.register({ return s })
-        c.register({ return [1, 2, 3] })
+        c.register({ 42 })
+        c.register({ "hello" })
+        c.register({ s })
+        c.register({ [1, 2, 3] })
 
         XCTAssertEqual("hello", c.resolve()!)
         XCTAssertEqual(42, c.resolve()!)
@@ -68,10 +68,10 @@ class ContainerTests: XCTestCase {
         let c  = Container()
 
         c.register({ ImplementsProtocol() as MyProtocol })
-        c.register({ (c.resolve()! as MyProtocol) as? ImplementsProtocol })
+        c.register({ (c.resolve()! as MyProtocol) as! ImplementsProtocol })
 
         let protocol_ = c.resolve()! as MyProtocol
-        let concreteType = c.resolve()! as ImplementsProtocol
+        let concreteType: ImplementsProtocol? = c.resolve()
 
         XCTAssertNotNil(protocol_)
         XCTAssertNotNil(concreteType)
