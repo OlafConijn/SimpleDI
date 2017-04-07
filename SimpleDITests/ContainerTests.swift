@@ -57,11 +57,25 @@ class ContainerTests: XCTestCase {
         
         c.register({ ImplementsProtocol() as MyProtocol })
         
-        let protocol_ : MyProtocol = c.resolve()!
-        let concreteType : ImplementsProtocol? = c.resolve()
+        let protocol_ = c.resolve()! as MyProtocol
+        let concreteType = c.resolve() as ImplementsProtocol?
         
         XCTAssertNotNil(protocol_)
         XCTAssertNil(concreteType)
+    }
+    
+    func testCanRegisterSameInstanceTwice() {
+        let c  = Container()
+        
+        c.register({ ImplementsProtocol() as MyProtocol })
+        c.register({ (c.resolve()! as MyProtocol) as! ImplementsProtocol })
+        
+        let protocol_ = c.resolve()! as MyProtocol
+        let concreteType = c.resolve()! as ImplementsProtocol
+        
+        XCTAssertNotNil(protocol_)
+        XCTAssertNotNil(concreteType)
+        XCTAssertTrue(protocol_ as! ImplementsProtocol === concreteType)
     }
     
     func testRegisterIsLazilyInvoked() {
@@ -117,7 +131,7 @@ class ContainerTests: XCTestCase {
         let c = Container()
         c.register({ return Fruit(c.resolve()!)})
         c.register({ return StringContainer(c.resolve()!)})
-        c.register({ return Basket(c.resolve()!, number: c.resolve()!)})
+        c.register({ return Basket(fruit: c.resolve()!, number: c.resolve()!)})
         c.register({ return "Banana"})
         c.register({ return 12})
         
@@ -139,14 +153,9 @@ class ContainerTests: XCTestCase {
         XCTAssertTrue(s.contains("String"))
     }
     
-    private class Basket {
+    private struct Basket {
         let fruit: Fruit
         let number: Int
-        
-        init(_ fruit: Fruit, number: Int) {
-            self.fruit = fruit
-            self.number = number
-        }
     }
     
     private class Fruit {
