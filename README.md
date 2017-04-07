@@ -11,31 +11,40 @@ SimpleDI : an easy to understand dependency injection (di) and inversion of cont
 
 creating a container:
 
+```swift
     let c = Container()
+```
 
 registering/resolving simple types:
 
+```swift
     c.registerInstance(42)  //registers an Int
     c.register({ return 42 }) //registers an Int 'lazyly'
     XCTAssertEqual(42, c.resolve()) //resolves an Int
-    
+```
+
 registering/resolving a service using protocol:
 
+```swift
     c.register({ return MyClass() as MyProtocol }) //registers concrete class as protocol
     let p = c.resolve() as MyProtocol //resolves instance of MyClass
+```
 
 dependency injection:
 
+```swift
     c.register({ return MyClass(c.resolve(), arg2: c.resolve(), arg3: c.resolve()) }) //dependency injection
     let cl = c.resolve() as MyClass? //resolves the whole dependency tree
-    
+```
+
 registering a non-singleton class:
 
+```swift
     c.register({ return MyClass() }, singleton: false) //registers as transient class
     let p = c.resolve() as MyClass
     let p2 = c.resolve() as MyClass
     XCTAssertTrue(p !== p2)
-
+```
 
     
     
