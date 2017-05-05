@@ -25,7 +25,7 @@ import Foundation
 ///
 ///dependency injection:
 ///
-///   c.register({ MyClass(c.resolve(), arg2: c.resolve(), arg3: c.resolve()) }) //dependency injection
+///   c.register({ c in MyClass(c.resolve(), arg2: c.resolve(), arg3: c.resolve()) }) //dependency injection
 ///   let cl = c.resolve()! as MyClass //resolves the whole dependency tree
 ///
 ///registering a non-singleton class:
@@ -46,6 +46,15 @@ public class Container: CustomDebugStringConvertible {
 
     public func register<T>(_ fnInit: @escaping () -> T, singleton: Bool) {
         let type = ContainerType(T.self)
+        registrations[type] = LazyContainerValue({ _ in fnInit()}, singleton: singleton)
+    }
+
+    public func register<T>(_ fnInit: @escaping (Container) -> T) {
+        self.register(fnInit, singleton: true)
+    }
+
+    public func register<T>(_ fnInit: @escaping (Container) -> T, singleton: Bool) {
+        let type = ContainerType(T.self)
         registrations[type] = LazyContainerValue(fnInit, singleton: singleton)
     }
 
@@ -57,7 +66,7 @@ public class Container: CustomDebugStringConvertible {
     public func resolve<T>() -> T? {
         let type = ContainerType(T.self)
         if let registration = registrations[type] {
-            return registration.getInstance() as? T
+            return registration.get(from:self) as? T
         } else {
             return nil
         }
@@ -94,27 +103,27 @@ public class Container: CustomDebugStringConvertible {
             self.val = val
         }
 
-        override func getInstance() -> Any {
+        override func get(from container: Container) -> Any {
             return val
         }
     }
 
     private class LazyContainerValue: ContainerValue {
-        let fnInit: () -> Any
+        let fnInit: (Container) -> Any
         let singleton: Bool
         var cachedInstance : Any?
 
-        init(_ fnInit: @escaping () -> Any, singleton: Bool) {
+        init(_ fnInit: @escaping (Container) -> Any, singleton: Bool) {
             self.fnInit = fnInit
             self.singleton = singleton
         }
 
-        override func getInstance() -> Any {
+        override func get(from container: Container) -> Any {
             if let previouslyCached = cachedInstance {
                 return previouslyCached
             }
 
-            let instance = fnInit()
+            let instance = fnInit(container)
 
             if singleton {
                 cachedInstance = instance
@@ -125,7 +134,7 @@ public class Container: CustomDebugStringConvertible {
     }
 
     private class ContainerValue {
-        func getInstance() -> Any {
+        func get(from container: Container) -> Any {
             return ""
         }
     }

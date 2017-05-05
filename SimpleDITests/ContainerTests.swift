@@ -2,7 +2,7 @@
 //  Created by Olaf Conijn on 07/04/2017.
 //  Copyright © 2017 Olaf Conijn. All rights reserved.
 //
-
+//swiftlint:disable force_cast
 import XCTest
 @testable import SimpleDI
 
@@ -65,13 +65,13 @@ class ContainerTests: XCTestCase {
     }
 
     func testCanRegisterSameInstanceTwice() {
-        let c  = Container()
+        let container  = Container()
 
-        c.register({ ImplementsProtocol() as MyProtocol })
-        c.register({ (c.resolve()! as MyProtocol) as! ImplementsProtocol })
+        container.register({ ImplementsProtocol() as MyProtocol })
+        container.register({ c in (c.resolve()! as MyProtocol) as! ImplementsProtocol })
 
-        let protocol_ = c.resolve()! as MyProtocol
-        let concreteType: ImplementsProtocol? = c.resolve()
+        let protocol_ = container.resolve()! as MyProtocol
+        let concreteType: ImplementsProtocol? = container.resolve()
 
         XCTAssertNotNil(protocol_)
         XCTAssertNotNil(concreteType)
@@ -128,14 +128,14 @@ class ContainerTests: XCTestCase {
     }
 
     func testCanResolveComplexGraph () {
-        let c = Container()
-        c.register({ Fruit(c.resolve()!)})
-        c.register({ StringContainer(c.resolve()!)})
-        c.register({ Basket(fruit: c.resolve()!, number: c.resolve()!)})
-        c.register({ "Banana"})
-        c.register({ 12})
+        let container = Container()
+        container.register({ c in Fruit(c.resolve()!)})
+        container.register({ c in StringContainer(c.resolve()!)})
+        container.register({ c in Basket(fruit: c.resolve()!, number: c.resolve()!)})
+        container.register({ "Banana"})
+        container.register({ 12})
 
-        let bananaBasket: Basket = c.resolve()!
+        let bananaBasket: Basket = container.resolve()!
         XCTAssertNotNil(bananaBasket)
         XCTAssertEqual(12, bananaBasket.number)
         XCTAssertNotNil(bananaBasket.fruit)

@@ -15,7 +15,6 @@ container.register({ 42 }) //registers an Int 'lazyly', overwrites previous
 
 container.register({ MyClass() as MyProtocol }) //registers concrete class as protocol
 container.resolve()! as MyProtocol //resolves instance of MyClass
-(c.resolve()! as MyProtocol) is MyClass //evaluates to true
 
 container.register({ MyClass() }, singleton: false) //registers as transient class
 let val1 = container.resolve()! as MyClass
