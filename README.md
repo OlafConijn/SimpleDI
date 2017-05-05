@@ -34,8 +34,8 @@ registering/resolving a service using protocol:
 dependency injection:
 
 ```swift
-    c.register({ MyClass(c.resolve(), arg2: c.resolve(), arg3: c.resolve()) }) //dependency injection
-    let cl = c.resolve()! as MyClass //resolves the whole dependency tree
+    contaienr.register({ c in MyClass(c.resolve(), arg2: c.resolve(), arg3: c.resolve()) }) //dependency injection
+    let cl = contaienr.resolve()! as MyClass //resolves the whole dependency tree
 ```
 
 registering a non-singleton class:
